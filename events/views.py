@@ -7,6 +7,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+from .forms import EventForm
 from .models import Event
 
 
@@ -37,7 +38,7 @@ def index(request):
 class EventCreateView(CreateView):
     model = Event
     template_name = 'events/event_create.html'
-    fields = ['summary', 'description', 'start', 'end']
+    form_class = EventForm
     success_url = reverse_lazy('events')
 
     def get(self, *args, **kwargs):
