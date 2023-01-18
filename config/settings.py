@@ -43,7 +43,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -117,7 +117,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 SESSION_COOKIE_NAME = "google_calendar_sessionid"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_AGE = 60  # 60 seconds
+SESSION_COOKIE_AGE = 60 * 5  # 5 minutes
 
 # Google api config
 GOOGLE_CREDENTIALS_FILE = str(BASE_DIR / 'config' / 'credentials.json')

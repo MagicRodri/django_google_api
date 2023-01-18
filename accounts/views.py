@@ -41,4 +41,4 @@ def google_auth_callback(request):
     credentials = flow.credentials
     request.session['credentials'] = credentials_to_dict(credentials)
 
-    return redirect('index')
+    return redirect('events')
