@@ -90,7 +90,6 @@ def google_auth_callback(request):
     flow.fetch_token(authorization_response=authorization_response)
 
     credentials = flow.credentials
-    print(credentials.to_json())
     request.session['credentials'] = credentials_to_dict(credentials)
 
     # TODO: move this to a background task
@@ -104,9 +103,11 @@ def google_auth_callback(request):
         if calendar:
             events = get_events(credentials, calendar.calendar_id)
             for event in events:
-                Event.objects.get_or_create(user=request.user,
-                                            calendar=calendar,
-                                            summary=event['summary'],
-                                            location=event['location'],
-                                            description=event['description'])
+                Event.objects.get_or_create(
+                    user=request.user,
+                    calendar=calendar,
+                    summary=event.get('summary', ''),
+                    location=event.get('location', ''),
+                    description=event.get('description', ''),
+                )
     return redirect('events:list')

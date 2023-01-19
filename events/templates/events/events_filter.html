@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class='d-flex flex-column align-items-center justify-content-center'>
+    <form action="" method="post">
+        {% csrf_token %}
+        <p>
+            <label for="id_calendar">Calendar:</label>
+            <select name="calendar" class="form-control" required="" id="id_calendar">
+            <option value="" selected="">---------</option>
+            {% for calendar in calendars %}
+                <option value="{{ calendar.calendar_id }}">{{ calendar.summary }}</option>
+            {% endfor %}        
+            </select>
+      </p>
+        <p>
+            <label for="start">Start:</label>
+            <input type="text" name="start" value="2023-01-20 14:40:23" class="form-control" required="" id="start">
+        </p>
+        <p>
+            <label for="end">End:</label>
+            <input type="text" name="end" value="2023-01-20 14:40:23" class="form-control" required="" id="end">
+        </p>
+        <button class="btn btn-dark" type="submit">Filter</button>
+    </form>
+</div>
+
+{% endblock content %}

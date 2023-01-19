@@ -24,21 +24,33 @@ def get_calendar_list(credentials):
     return cleaned_calendars
 
 
-def get_events(credentials, calendar_id, time_min=None, time_max=None):
+def get_events(credentials, calendar_id="", time_min=None, time_max=None):
     calendar = get_calendar_service(credentials)
-    lookup = {'calendarId': calendar_id}
+    if not calendar_id:
+        calendar_id = 'primary'
+
     if time_min:
         if not isinstance(time_min, str):
             time_min = time_min.isoformat() + 'Z'
-        lookup['timeMin'] = time_min
     if time_max:
         if not isinstance(time_max, str):
             time_max = time_max.isoformat() + 'Z'
-        lookup['timeMax'] = time_max
+    lookup = {
+        'calendarId': calendar_id,
+        'timeMin': time_min,
+        'timeMax': time_max,
+    }
+    page_token = None
+    items = []
+    while True:
+        events = calendar.events().list(**lookup,
+                                        pageToken=page_token).execute()
+        for event in events['items']:
+            items.append(event)
+        page_token = events.get('nextPageToken')
+        if not page_token:
+            break
 
-    events = calendar.events().list(**lookup).execute().get('items', [])
-    if not events:
-        return []
     # Get only the id, summary, start and end of each event
     cleaned_events = [{
         'id': event['id'],
@@ -47,5 +59,5 @@ def get_events(credentials, calendar_id, time_min=None, time_max=None):
         'description': event.get('description', ''),
         'start': event.get('start', {}).get('dateTime', ''),
         'end': event.get('end', {}).get('dateTime', '')
-    } for event in events]
+    } for event in items]
     return cleaned_events

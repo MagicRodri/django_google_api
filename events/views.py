@@ -1,7 +1,8 @@
+from dateutil import parser
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, TemplateView
 from google.oauth2.credentials import Credentials
 
 from accounts.utils import (
@@ -11,10 +12,41 @@ from accounts.utils import (
 
 from .forms import EventForm
 from .models import Calendar, Event
-from .utils import get_calendar_service
+from .utils import get_calendar_service, get_events
 
 CALENDAR_API_NAME = settings.CALENDAR_API_NAME
 CALENDAR_API_VERSION = settings.CALENDAR_API_VERSION
+
+
+class EventFilterView(LoginRequiredMixin,
+                      GoogleCalendarAuthorizationRequiredMixin, TemplateView):
+    template_name = 'events/events_filter.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['calendars'] = Calendar.objects.filter(user=self.request.user)
+        return context
+
+    def post(self, *args, **kwargs):
+        start_time = parser.parse(self.request.POST.get('start'))
+        end_time = parser.parse(self.request.POST.get('end'))
+        calendar = self.request.POST.get('calendar')
+        credentials = Credentials(**self.request.session['credentials'])
+        calendar = get_calendar_service(credentials)
+        events = get_events(credentials,
+                            calendar_id=calendar,
+                            time_min=start_time,
+                            time_max=end_time)
+
+        for event in events:
+            Event.objects.get_or_create(
+                user=self.request.user,
+                calendar=calendar,
+                summary=event.get('summary', ''),
+                location=event.get('location', ''),
+                description=event.get('description', ''),
+            )
+        return super().get(self, *args, **kwargs)
 
 
 class EventListView(LoginRequiredMixin,
