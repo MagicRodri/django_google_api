@@ -1,5 +1,4 @@
 from django.conf import settings
-from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 CALENDAR_API_NAME = settings.CALENDAR_API_NAME
@@ -25,21 +24,28 @@ def get_calendar_list(credentials):
     return cleaned_calendars
 
 
-def get_events(credentials, calendar_id, time_min, time_max):
+def get_events(credentials, calendar_id, time_min=None, time_max=None):
     calendar = get_calendar_service(credentials)
-    events = calendar.events().list(calendarId=calendar_id,
-                                    timeMin=time_min,
-                                    timeMax=time_max).execute().get(
-                                        'items', [])
+    lookup = {'calendarId': calendar_id}
+    if time_min:
+        if not isinstance(time_min, str):
+            time_min = time_min.isoformat() + 'Z'
+        lookup['timeMin'] = time_min
+    if time_max:
+        if not isinstance(time_max, str):
+            time_max = time_max.isoformat() + 'Z'
+        lookup['timeMax'] = time_max
+
+    events = calendar.events().list(**lookup).execute().get('items', [])
     if not events:
         return []
     # Get only the id, summary, start and end of each event
     cleaned_events = [{
         'id': event['id'],
         'summary': event['summary'],
-        'location': event['location'],
-        'description': event['description'],
-        'start': event['start'],
-        'end': event['end'],
+        'location': event.get('location', ''),
+        'description': event.get('description', ''),
+        'start': event.get('start', {}).get('dateTime', ''),
+        'end': event.get('end', {}).get('dateTime', '')
     } for event in events]
     return cleaned_events

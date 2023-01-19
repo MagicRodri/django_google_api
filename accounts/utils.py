@@ -22,10 +22,10 @@ class GoogleCalendarAuthorizationRequiredMixin:
     necessary.
     """
 
-    def dispatch(self, request, *args, **kwargs):
-        if 'credentials' not in request.session:
+    def dispatch(self, *args, **kwargs):
+        if 'credentials' not in self.request.session:
             return redirect('accounts:google_auth')
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(self.request, *args, **kwargs)
 
 
 def calendar_authorization_required(view_func):
