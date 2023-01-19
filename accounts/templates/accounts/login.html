@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container col-xl-10 col-xxl-8 px-4 py-5">
+    <div class="row align-items-center g-lg-5 py-5">
+        <div class="col-lg-7 text-center text-lg-start">
+        <h1 class="display-4 fw-bold lh-1 mb-3">Django with google api</h1>
+        <p class="col-lg-10 fs-4">Login page</p>
+        </div>
+        <div class="col-md-10 mx-auto col-lg-5">
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+            <div id="g_id_onload"
+                data-client_id="271266036427-pc3aq5aa36s6e19sd4c8dhknqqpunoqv.apps.googleusercontent.com"
+                data-login_uri="http://localhost:8000/accounts/login/google/"
+                data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                data-type="standard"
+                data-size="large"
+                data-theme="outline"
+                data-text="sign_in_with"
+                data-shape="rectangular"
+                data-logo_alignment="left">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block script %}
+
+{% endblock script %}

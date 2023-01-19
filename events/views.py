@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -10,40 +11,39 @@ from googleapiclient.errors import HttpError
 from .forms import EventForm
 from .models import Event
 
+CALENDAR_API_NAME = settings.CALENDAR_API_NAME
+CALENDAR_API_VERSION = settings.CALENDAR_API_VERSION
 
-def index(request):
+
+def events_list(request):
     if 'credentials' not in request.session:
-        return redirect('google_auth')
+        return redirect('accounts:google_auth')
 
     credentials = Credentials(**request.session['credentials'])
 
-    calendar = build('calendar', 'v3', credentials=credentials)
+    calendar = build(CALENDAR_API_NAME,
+                     CALENDAR_API_VERSION,
+                     credentials=credentials)
     try:
-        # Call the Calendar API
-        now = datetime.datetime.utcnow().isoformat(
-        ) + 'Z'  # 'Z' indicates UTC time
-        print('Getting the upcoming 10 events')
-        events_result = calendar.events().list(calendarId='primary',
-                                               timeMin=now,
-                                               maxResults=10,
-                                               singleEvents=True,
-                                               orderBy='startTime').execute()
+        events_result = calendar.calendarList().list().execute()
         events = events_result.get('items', [])
     except HttpError as e:
-        print(e)
+        raise e
 
-    return render(request, 'events/index.html', context={'events': events})
+    return render(request,
+                  'events/events_list.html',
+                  context={'events': events})
 
 
 class EventCreateView(CreateView):
     model = Event
-    template_name = 'events/event_create.html'
+    template_name = 'events/events_create.html'
     form_class = EventForm
     success_url = reverse_lazy('events')
 
     def get(self, *args, **kwargs):
         if 'credentials' not in self.request.session:
-            return redirect('google_auth')
+            return redirect('accounts:google_auth')
         return super().get(self, *args, **kwargs)
 
     def form_valid(self, form):
@@ -63,7 +63,7 @@ class EventCreateView(CreateView):
             }
         }
         credentials = Credentials(**self.request.session['credentials'])
-        calendar = build('calendar', 'v3', credentials=credentials)
+        calendar = build(CALENDAR_API_NAME, 'v3', credentials=credentials)
         event = calendar.events().insert(calendarId='primary',
                                          body=event_body).execute()
         return super().form_valid(form)

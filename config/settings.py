@@ -117,7 +117,14 @@ AUTH_USER_MODEL = 'accounts.User'
 
 SESSION_COOKIE_NAME = "google_calendar_sessionid"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_AGE = 60 * 5  # 5 minutes
+SESSION_COOKIE_AGE = 60 * 1
 
 # Google api config
 GOOGLE_CREDENTIALS_FILE = str(BASE_DIR / 'config' / 'credentials.json')
+CALENDAR_API_NAME = 'calendar'
+CALENDAR_API_SCOPES = ['https://www.googleapis.com/auth/calendar']
+CALENDAR_API_VERSION = 'v3'
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'

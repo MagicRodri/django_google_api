@@ -10,13 +10,37 @@
     <title> {% block title %}{% endblock title %} </title>
 </head>
 <body>
-    <header>
-        <div class='m-4'>
-            <a class="btn btn-dark" href={% url 'events' %}>Home</a>
+        
+    <header class="p-2 bg-dark text-white">
+
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href={% url 'home' %} class="nav-link px-2 text-white">Home</a></li>
+                <li><a href={% url 'events:list' %} class="nav-link px-2 text-white">Events</a></li>
+            </ul>
+            {% if request.user.is_authenticated %}
+            <div class="dropdown text-end">
+                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" 
+                    class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                      <li><a class="dropdown-item" href={% url 'follows-view' %}>Follow creators</a></li>
+                      <li><a class="dropdown-item" href={% url 'logout-view' %}>Sign out</a></li>
+                </ul>
+            {% else %}
+            <div class="text-end">
+                <a href={% url 'accounts:login' %} class="btn btn-outline-light me-2">Login</a>
+            {% endif %}
+              </div>
+            </div>
         </div>
+        
     </header>
     {% block content %}{% endblock content %}
 
+    {% block script %}{% endblock script %}
      <!-- Bootstrap js -->
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>

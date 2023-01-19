@@ -4,4 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     # add additional fields in here
-    pass
+    google_id = models.CharField(max_length=255,
+                                 blank=True,
+                                 null=True,
+                                 unique=True)
