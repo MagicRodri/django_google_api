@@ -26,6 +26,10 @@ def get_calendar_list(credentials):
 
 def get_events(credentials, calendar_id="", time_min=None, time_max=None):
     calendar = get_calendar_service(credentials)
+    """
+    Get all events from a calendar between two dates
+
+    """
     if not calendar_id:
         calendar_id = 'primary'
 

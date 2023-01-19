@@ -1,5 +1,7 @@
 from django.shortcuts import redirect
 
+from accounts.models import GoogleCredential
+
 
 def credentials_to_dict(credentials):
     """
@@ -23,7 +25,8 @@ class GoogleCalendarAuthorizationRequiredMixin:
     """
 
     def dispatch(self, *args, **kwargs):
-        if 'credentials' not in self.request.session:
+        qs = GoogleCredential.objects.filter(user=self.request.user)
+        if not qs.exists():
             return redirect('accounts:google_auth')
         return super().dispatch(self.request, *args, **kwargs)
 
@@ -36,7 +39,8 @@ def calendar_authorization_required(view_func):
     """
 
     def _wrapped_view(request, *args, **kwargs):
-        if 'credentials' not in request.session:
+        qs = GoogleCredential.objects.filter(user=request.user)
+        if not qs.exists():
             return redirect('accounts:google_auth')
         return view_func(request, *args, **kwargs)
 

@@ -24,5 +24,12 @@
         <button class="btn btn-dark" type="submit">Filter</button>
     </form>
 </div>
+{% if results %}
+    <div class='d-flex flex-column align-items-center justify-content-center'>
+        <h1>Filter results</h1>
+        <p>{{ e.start }}</p>
+        <p>{{ e.end }}</p>
+    </div>
+{% endif %}
 
 {% endblock content %}

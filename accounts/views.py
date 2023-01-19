@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -13,6 +13,7 @@ from google.oauth2 import id_token
 from events.models import Calendar, Event
 from events.utils import get_calendar_list, get_events
 
+from .models import GoogleCredential
 from .utils import credentials_to_dict
 
 CALENDAR_API_SCOPES = settings.CALENDAR_API_SCOPES
@@ -77,7 +78,7 @@ def google_auth(request):
 @login_required
 def google_auth_callback(request):
     state = request.session['state']
-
+    print("stata: ", state)
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         settings.GOOGLE_CREDENTIALS_FILE,
         scopes=CALENDAR_API_SCOPES,
@@ -90,7 +91,14 @@ def google_auth_callback(request):
     flow.fetch_token(authorization_response=authorization_response)
 
     credentials = flow.credentials
-    request.session['credentials'] = credentials_to_dict(credentials)
+    credentials_dict = credentials_to_dict(credentials)
+    # request.session['credentials'] = credentials_dict
+    scopes = credentials_dict.pop('scopes')
+    credentials_dict['scopes'] = ','.join(scopes)
+    GoogleCredential.objects.update_or_create(
+        user=request.user,
+        defaults=credentials_dict,
+    )
 
     # TODO: move this to a background task
     calendars = get_calendar_list(credentials)

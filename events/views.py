@@ -31,22 +31,25 @@ class EventFilterView(LoginRequiredMixin,
         start_time = parser.parse(self.request.POST.get('start'))
         end_time = parser.parse(self.request.POST.get('end'))
         calendar = self.request.POST.get('calendar')
-        credentials = Credentials(**self.request.session['credentials'])
+        credentials = Credentials(
+            **self.request.user.googlecredential.to_dict())
         calendar = get_calendar_service(credentials)
-        events = get_events(credentials,
-                            calendar_id=calendar,
-                            time_min=start_time,
-                            time_max=end_time)
-
-        for event in events:
-            Event.objects.get_or_create(
-                user=self.request.user,
-                calendar=calendar,
-                summary=event.get('summary', ''),
-                location=event.get('location', ''),
-                description=event.get('description', ''),
-            )
-        return super().get(self, *args, **kwargs)
+        try:
+            events = get_events(credentials,
+                                calendar_id=calendar,
+                                time_min=start_time,
+                                time_max=end_time)
+            for event in events:
+                event, created = Event.objects.get_or_create(
+                    user=self.request.user,
+                    calendar=calendar,
+                    summary=event.get('summary', ''),
+                    location=event.get('location', ''),
+                    description=event.get('description', ''),
+                )
+        except Exception as e:
+            pass
+        return self.get(self, *args, **kwargs)
 
 
 class EventListView(LoginRequiredMixin,
@@ -83,7 +86,8 @@ class EventCreateView(LoginRequiredMixin,
                 'dateTime': event.end.isoformat() + 'Z',
             }
         }
-        credentials = Credentials(**self.request.session['credentials'])
+        credentials = Credentials(
+            **self.request.user.googlecredential.to_dict())
         calendar = get_calendar_service(credentials)
         event = calendar.events().insert(calendarId='primary',
                                          body=event_body).execute()
