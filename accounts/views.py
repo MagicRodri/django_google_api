@@ -1,7 +1,8 @@
 import google_auth_oauthlib.flow
 from django.conf import settings
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -28,6 +29,18 @@ class LoginView(TemplateView):
         context['google_oauth_client_id'] = settings.GOOGLE_OAUTH_CLIENT_ID
         context['google_oauth_redirect_uri'] = reverse('accounts:google_login')
         return context
+
+
+class LogoutView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/logout.html'
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            logout(request)
+        return redirect('home')
 
 
 @csrf_exempt
