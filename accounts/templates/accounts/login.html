@@ -12,8 +12,8 @@
         <div class="col-md-10 mx-auto col-lg-5">
             <script src="https://accounts.google.com/gsi/client" async defer></script>
             <div id="g_id_onload"
-                data-client_id="271266036427-pc3aq5aa36s6e19sd4c8dhknqqpunoqv.apps.googleusercontent.com"
-                data-login_uri="http://localhost:8000/accounts/login/google/"
+                data-client_id={{google_oauth_client_id}}
+                data-login_uri="http://localhost:8000{{google_oauth_redirect_uri}}"
                 data-auto_prompt="false">
             </div>
             <div class="g_id_signin"

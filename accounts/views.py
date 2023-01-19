@@ -1,6 +1,7 @@
 import google_auth_oauthlib.flow
 from django.conf import settings
 from django.contrib.auth import get_user_model, login
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -8,6 +9,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
+
+from events.models import Calendar, Event
+from events.utils import get_calendar_list, get_events
 
 from .utils import credentials_to_dict
 
@@ -20,8 +24,8 @@ class LoginView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        # context['google_oauth_client_id'] = settings.GOOGLE_OAUTH_CLIENT_ID
-        # context['google_oauth_redirect_uri'] = reverse('accounts:google_login')
+        context['google_oauth_client_id'] = settings.GOOGLE_OAUTH_CLIENT_ID
+        context['google_oauth_redirect_uri'] = reverse('accounts:google_login')
         return context
 
 
@@ -33,8 +37,7 @@ def google_login(request):
         try:
             idinfo = id_token.verify_oauth2_token(
                 token, google_requests.Request(),
-                "271266036427-pc3aq5aa36s6e19sd4c8dhknqqpunoqv.apps.googleusercontent.com"
-            )
+                settings.GOOGLE_OAUTH_CLIENT_ID)
             if idinfo['iss'] not in [
                     'accounts.google.com', 'https://accounts.google.com'
             ]:
@@ -53,6 +56,7 @@ def google_login(request):
         return redirect('home')
 
 
+@login_required
 def google_auth(request):
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         settings.GOOGLE_CREDENTIALS_FILE,
@@ -70,6 +74,7 @@ def google_auth(request):
     return redirect(authorization_url)
 
 
+@login_required
 def google_auth_callback(request):
     state = request.session['state']
 
@@ -85,6 +90,23 @@ def google_auth_callback(request):
     flow.fetch_token(authorization_response=authorization_response)
 
     credentials = flow.credentials
+    print(credentials.to_json())
     request.session['credentials'] = credentials_to_dict(credentials)
 
+    # TODO: move this to a background task
+    calendars = get_calendar_list(credentials)
+    for calendar in calendars:
+        calendar, _ = Calendar.objects.get_or_create(
+            user=request.user,
+            calendar_id=calendar['id'],
+            summary=calendar['summary'],
+        )
+        if calendar:
+            events = get_events(credentials, calendar.calendar_id)
+            for event in events:
+                Event.objects.get_or_create(user=request.user,
+                                            calendar=calendar,
+                                            summary=event['summary'],
+                                            location=event['location'],
+                                            description=event['description'])
     return redirect('events:list')

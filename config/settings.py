@@ -125,6 +125,9 @@ CALENDAR_API_NAME = 'calendar'
 CALENDAR_API_SCOPES = ['https://www.googleapis.com/auth/calendar']
 CALENDAR_API_VERSION = 'v3'
 
+# Django-allauth config
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
+
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
