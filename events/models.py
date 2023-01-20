@@ -2,7 +2,6 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.signals import post_save
 
 User = get_user_model()
 
@@ -13,7 +12,9 @@ class Calendar(models.Model):
     summary = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return self.calendar_id
+        if self.summary:
+            return self.summary
+        return self.user
 
 
 class Event(models.Model):
