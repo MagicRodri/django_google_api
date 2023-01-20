@@ -105,16 +105,21 @@ def google_auth_callback(request):
     flow.fetch_token(authorization_response=authorization_response)
 
     credentials = flow.credentials
-    credentials_dict = credentials_to_dict(credentials)
-    request.session['credentials'] = credentials_dict
-    scopes = credentials_dict.pop('scopes')
-    credentials_dict['scopes'] = ','.join(scopes)
+    request.session['credentials'] = credentials_to_dict(credentials)
+    defaults = {
+        'scopes': ','.join(credentials.scopes),
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'client_id': credentials.client_id
+    }
     GoogleCredential.objects.update_or_create(
         user=request.user,
-        defaults=credentials_dict,
+        defaults=defaults,
     )
 
+    ###
     # TODO: move this to a background task
+    ###
     calendars = get_calendar_list(credentials)
     for calendar in calendars:
         calendar, _ = Calendar.objects.get_or_create(
