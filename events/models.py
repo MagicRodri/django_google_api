@@ -20,6 +20,7 @@ class Calendar(models.Model):
 class Event(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE)
+    event_id = models.CharField(max_length=255, blank=True)
     summary = models.CharField(max_length=255)
     location = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
