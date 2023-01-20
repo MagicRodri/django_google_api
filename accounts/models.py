@@ -10,6 +10,13 @@ class User(AbstractUser):
                                  null=True,
                                  unique=True)
 
+    def __str__(self):
+        if self.first_name and self.last_name:
+            return f'{self.first_name} {self.last_name}'
+        if self.email:
+            return self.email
+        return self.id
+
 
 class GoogleCredential(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -19,7 +26,7 @@ class GoogleCredential(models.Model):
     scopes = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.user.username
+        return self.user
 
     def to_dict(self):
         return {

@@ -27,6 +27,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    #Third-party
+    'rest_framework',
+    'django_filters',
+
+    #Internal
+    'api',
     'accounts',
     'events',
 ]
@@ -122,6 +129,9 @@ SESSION_COOKIE_NAME = "google_calendar_sessionid"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_AGE = 60 * 60  # 1 hour
 
+# Django security config
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
 # Google api config
 GOOGLE_CREDENTIALS_FILE = str(BASE_DIR / 'config' / 'credentials.json')
 CALENDAR_API_NAME = 'calendar'
@@ -131,7 +141,16 @@ CALENDAR_API_VERSION = 'v3'
 # Django-allauth config
 GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 
-SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+# Django-rest-framework config
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
 
 if DEBUG:
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'

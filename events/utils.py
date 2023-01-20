@@ -19,7 +19,7 @@ def get_calendar_list(credentials):
     # Get only the id and summary of each calendar
     cleaned_calendars = [{
         'id': calendar['id'],
-        'summary': calendar['summary']
+        'summary': calendar.get('summary', '')
     } for calendar in calendars]
     return cleaned_calendars
 
@@ -28,7 +28,6 @@ def get_events(credentials, calendar_id="", time_min=None, time_max=None):
     calendar = get_calendar_service(credentials)
     """
     Get all events from a calendar between two dates
-
     """
     if not calendar_id:
         calendar_id = 'primary'
@@ -55,10 +54,9 @@ def get_events(credentials, calendar_id="", time_min=None, time_max=None):
         if not page_token:
             break
 
-    # Get only the id, summary, start and end of each event
     cleaned_events = [{
         'id': event['id'],
-        'summary': event['summary'],
+        'summary': event.get('summary', ''),
         'location': event.get('location', ''),
         'description': event.get('description', ''),
         'start': event.get('start', {}).get('dateTime', ''),
