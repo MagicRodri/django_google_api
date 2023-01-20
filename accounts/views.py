@@ -59,11 +59,12 @@ def google_login(request):
                 raise ValueError('Wrong issuer.')
 
             user, created = User.objects.get_or_create(google_id=idinfo['sub'],
-                                                       email=idinfo['email'])
+                                                       email=idinfo.get(
+                                                           'email', ''))
             if created:
-                user.first_name = idinfo['given_name']
-                user.last_name = idinfo['family_name']
-                user.username = idinfo['email']
+                user.first_name = idinfo.get('given_name', '')
+                user.last_name = idinfo.get('family_name', '')
+                user.username = idinfo.get('email', '')
                 user.save()
             login(request, user)
         except ValueError:
@@ -111,7 +112,7 @@ def google_auth_callback(request):
         'refresh_token': credentials.refresh_token,
         'client_id': credentials.client_id
     }
-    GoogleCredential.objects.update_or_create(
+    GoogleCredential.objects.update(
         user=request.user,
         defaults=defaults,
     )

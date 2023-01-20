@@ -53,18 +53,15 @@ def get_events(credentials, calendar_id="", time_min=None, time_max=None):
         if not page_token:
             break
 
-    cleaned_events = [{
-        'id':
-        event['id'],
-        'summary':
-        event.get('summary', ''),
-        'location':
-        event.get('location', ''),
-        'description':
-        event.get('description', ''),
-        'start':
-        parser.parse(event.get('start', {}).get('dateTime', '')),
-        'end':
-        parser.parse(event.get('end', {}).get('dateTime', ''))
-    } for event in items]
+    cleaned_events = [
+        {
+            'id': event['id'],
+            'summary': event.get('summary', ''),
+            'location': event.get('location', ''),
+            'description': event.get('description', ''),
+            'start': parser.parse(event.get('start', {}).get(
+                'dateTime', '')),  # TODO: Handle events without a start time
+            'end': parser.parse(event.get('end', {}).get('dateTime', ''))
+        } for event in items
+    ]
     return cleaned_events
