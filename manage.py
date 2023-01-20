@@ -3,13 +3,10 @@
 import os
 import sys
 
-from dotenv import read_dotenv
-
 
 def main():
     """Run administrative tasks."""
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-    read_dotenv()
+
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     try:
         from django.core.management import execute_from_command_line

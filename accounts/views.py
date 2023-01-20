@@ -37,9 +37,10 @@ class LogoutView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            logout(request)
+    def post(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            self.request.session.flush()
+            logout(self.request)
         return redirect('home')
 
 
@@ -105,7 +106,7 @@ def google_auth_callback(request):
 
     credentials = flow.credentials
     credentials_dict = credentials_to_dict(credentials)
-    # request.session['credentials'] = credentials_dict
+    request.session['credentials'] = credentials_dict
     scopes = credentials_dict.pop('scopes')
     credentials_dict['scopes'] = ','.join(scopes)
     GoogleCredential.objects.update_or_create(

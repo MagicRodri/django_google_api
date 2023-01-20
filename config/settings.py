@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 
+from dotenv import read_dotenv
+
+read_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -117,7 +120,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 SESSION_COOKIE_NAME = "google_calendar_sessionid"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 2  # 2 weeks
+SESSION_COOKIE_AGE = 60 * 60  # 1 hour
 
 # Google api config
 GOOGLE_CREDENTIALS_FILE = str(BASE_DIR / 'config' / 'credentials.json')
@@ -130,4 +133,6 @@ GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
-os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+if DEBUG:
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'

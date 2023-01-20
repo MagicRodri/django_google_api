@@ -31,8 +31,7 @@ class EventFilterView(LoginRequiredMixin,
         start_time = parser.parse(self.request.POST.get('start'))
         end_time = parser.parse(self.request.POST.get('end'))
         calendar = self.request.POST.get('calendar')
-        credentials = Credentials(
-            **self.request.user.googlecredential.to_dict())
+        credentials = Credentials(**self.request.session['credentials'])
         calendar = get_calendar_service(credentials)
         try:
             events = get_events(credentials,
@@ -80,16 +79,18 @@ class EventCreateView(LoginRequiredMixin,
             'location': event.location,
             'description': event.description,
             'start': {
-                'dateTime': event.start.isoformat() + 'Z',
+                'dateTime': event.start.isoformat(),
             },
             'end': {
-                'dateTime': event.end.isoformat() + 'Z',
+                'dateTime': event.end.isoformat(),
             }
         }
-        credentials = Credentials(
-            **self.request.user.googlecredential.to_dict())
+        calendar_id = 'primary'
+        if event.calendar:
+            calendar_id = event.calendar.calendar_id
+        credentials = Credentials(**self.request.session['credentials'])
         calendar = get_calendar_service(credentials)
-        event = calendar.events().insert(calendarId='primary',
+        event = calendar.events().insert(calendarId=calendar_id,
                                          body=event_body).execute()
         return super().form_valid(form)
 

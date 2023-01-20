@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from google.oauth2.credentials import Credentials
 
 
 class User(AbstractUser):
@@ -31,3 +32,6 @@ class GoogleCredential(models.Model):
             'client_secret': self.client_secret,
             'scopes': self.scopes.split(','),
         }
+
+    def to_credentials(self):
+        return Credentials(**self.to_dict())

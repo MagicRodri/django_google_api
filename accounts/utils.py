@@ -17,6 +17,17 @@ def credentials_to_dict(credentials):
     }
 
 
+# def validate_google_credentials(request):
+#     """
+#     Validate google credentials
+#     """
+#     qs = GoogleCredential.objects.filter(user=self.request.user)
+#     if qs.exists():
+#         creds = qs.first().to_credentials()
+#         if not creds.valid:
+#             creds.refresh(Request())
+
+
 class GoogleCalendarAuthorizationRequiredMixin:
     """
     Mixin for views that checks that the user has authorized the app to
@@ -25,8 +36,7 @@ class GoogleCalendarAuthorizationRequiredMixin:
     """
 
     def dispatch(self, *args, **kwargs):
-        qs = GoogleCredential.objects.filter(user=self.request.user)
-        if not qs.exists():
+        if not 'credentials' in self.request.session:
             return redirect('accounts:google_auth')
         return super().dispatch(self.request, *args, **kwargs)
 
@@ -39,8 +49,7 @@ def calendar_authorization_required(view_func):
     """
 
     def _wrapped_view(request, *args, **kwargs):
-        qs = GoogleCredential.objects.filter(user=request.user)
-        if not qs.exists():
+        if not 'credentials' in request.session:
             return redirect('accounts:google_auth')
         return view_func(request, *args, **kwargs)
 
