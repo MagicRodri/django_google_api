@@ -1,5 +1,6 @@
 import datetime
 
+from dateutil import parser
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -41,9 +42,16 @@ class Event(models.Model):
                 'summary': event.get('summary', ''),
                 'location': event.get('location', ''),
                 'description': event.get('description', ''),
-                'start': event.get('start'),
-                'end': event.get('end'),
             }
+            start = event.get('start')
+            if start:
+                start = parser.parse(start)
+                defaults['start'] = start
+            end = event.get('end')
+            if end:
+                end = parser.parse(end)
+                defaults['end'] = end
+
             cls.objects.update_or_create(
                 user=user,
                 event_id=event.get('id', ''),

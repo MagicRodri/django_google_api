@@ -112,14 +112,12 @@ def google_auth_callback(request):
         'refresh_token': credentials.refresh_token,
         'client_id': credentials.client_id
     }
-    GoogleCredential.objects.update(
-        user=request.user,
-        defaults=defaults,
-    )
+    qs = GoogleCredential.objects.filter(user=request.user)
+    if qs.exists():
+        qs.update(**defaults)
+    else:
+        GoogleCredential.objects.create(user=request.user, **defaults)
 
-    ###
-    # TODO: move this to a background task
-    ###
     calendars = get_calendar_list(credentials)
     for calendar in calendars:
         calendar, _ = Calendar.objects.get_or_create(
