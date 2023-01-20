@@ -32,3 +32,22 @@ class Event(models.Model):
 
     def __str__(self):
         return self.summary
+
+    @classmethod
+    def from_events_list(cls, user, calendar, events):
+        for event in events:
+            print(event)
+            print(event.get('start'))
+            defaults = {
+                'calendar': calendar,
+                'summary': event.get('summary', ''),
+                'location': event.get('location', ''),
+                'description': event.get('description', ''),
+                'start': event.get('start'),
+                'end': event.get('end'),
+            }
+            cls.objects.update_or_create(
+                user=user,
+                event_id=event.get('id', ''),
+                defaults=defaults,
+            )

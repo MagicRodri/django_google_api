@@ -18,7 +18,6 @@
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a href={% url 'home' %} class="nav-link px-2 text-white">Home</a></li>
                 <li><a href={% url 'events:list' %} class="nav-link px-2 text-white">Events</a></li>
-                <li><a href={% url 'events:filter' %} class="nav-link px-2 text-white">Filter</a></li>
             </ul>
             {% if request.user.is_authenticated %}
             <div class="dropdown text-end">

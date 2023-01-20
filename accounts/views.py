@@ -92,7 +92,6 @@ def google_auth(request):
 @login_required
 def google_auth_callback(request):
     state = request.session['state']
-    print("stata: ", state)
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         settings.GOOGLE_CREDENTIALS_FILE,
         scopes=CALENDAR_API_SCOPES,
@@ -125,16 +124,9 @@ def google_auth_callback(request):
         calendar, _ = Calendar.objects.get_or_create(
             user=request.user,
             calendar_id=calendar['id'],
-            summary=calendar['summary'],
+            summary=calendar.get('summary', ''),
         )
         if calendar:
             events = get_events(credentials, calendar.calendar_id)
-            for event in events:
-                Event.objects.get_or_create(
-                    user=request.user,
-                    calendar=calendar,
-                    summary=event.get('summary', ''),
-                    location=event.get('location', ''),
-                    description=event.get('description', ''),
-                )
+            Event.from_events_list(request.user, calendar, events)
     return redirect('events:list')

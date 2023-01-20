@@ -5,13 +5,20 @@
 
     <div class="container-fluid">
 
-        <div class="d-flex flex-wrap align-items-center justify-content-between m-2">
-            <div>
+        <div class="d-flex flex-column flex-wrap align-items-start justify-content-around m-2">
+            <div class="mb-2">
                 <a class="btn btn-dark" href={% url 'events:create' %}>Create event</a>
             </div>
-            <form action="" method="get" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <input name="q" type="text" class="form-control" placeholder="Search">
-            </form>
+            <div>
+                <form action="" method="get" class="d-flex flex-row flex-wrap  col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                    {{ filter.form}}
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" name="from_api" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                        <label class="form-check-label" for="flexSwitchCheckDefault">From google calendar</label>
+                      </div>
+                    <button type="submit" class="btn btn-dark">Filter</button>
+                </form>
+            </div>
         </div>
         
         <div class="row">
@@ -26,7 +33,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for event in events %}
+                    {% for event in filter.qs %}
                         <tr>
                             <td>{{event.summary}}</td>
                             <td>{{event.location}}</td>

@@ -1,3 +1,4 @@
+from dateutil import parser
 from django.conf import settings
 from googleapiclient.discovery import build
 
@@ -55,11 +56,17 @@ def get_events(credentials, calendar_id="", time_min=None, time_max=None):
             break
 
     cleaned_events = [{
-        'id': event['id'],
-        'summary': event.get('summary', ''),
-        'location': event.get('location', ''),
-        'description': event.get('description', ''),
-        'start': event.get('start', {}).get('dateTime', ''),
-        'end': event.get('end', {}).get('dateTime', '')
+        'id':
+        event['id'],
+        'summary':
+        event.get('summary', ''),
+        'location':
+        event.get('location', ''),
+        'description':
+        event.get('description', ''),
+        'start':
+        parser.parse(event.get('start', {}).get('dateTime', '')),
+        'end':
+        parser.parse(event.get('end', {}).get('dateTime', ''))
     } for event in items]
     return cleaned_events
