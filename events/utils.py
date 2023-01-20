@@ -33,17 +33,15 @@ def get_events(credentials, calendar_id="", time_min=None, time_max=None):
     if not calendar_id:
         calendar_id = 'primary'
 
+    lookup = {'calendarId': calendar_id}
     if time_min:
         if not isinstance(time_min, str):
             time_min = time_min.isoformat() + 'Z'
+        lookup['timeMin'] = time_min
     if time_max:
         if not isinstance(time_max, str):
             time_max = time_max.isoformat() + 'Z'
-    lookup = {
-        'calendarId': calendar_id,
-        'timeMin': time_min,
-        'timeMax': time_max,
-    }
+        lookup['timeMax'] = time_max
     page_token = None
     items = []
     while True:

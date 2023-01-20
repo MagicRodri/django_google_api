@@ -36,8 +36,6 @@ class Event(models.Model):
     @classmethod
     def from_events_list(cls, user, calendar, events):
         for event in events:
-            print(event)
-            print(event.get('start'))
             defaults = {
                 'calendar': calendar,
                 'summary': event.get('summary', ''),
