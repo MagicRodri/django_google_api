@@ -15,7 +15,7 @@ class User(AbstractUser):
             return f'{self.first_name} {self.last_name}'
         if self.email:
             return self.email
-        return self.id
+        return self.username
 
 
 class GoogleCredential(models.Model):
