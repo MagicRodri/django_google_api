@@ -12,7 +12,7 @@
             <div class="col-lg-3">
                 <form action="" method="get" class="d-flex flex-row flex-wrap  col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                     {{ filter.form}}
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch w-100 mb-2">
                         <input class="form-check-input" name="from_api" type="checkbox" role="switch" id="flexSwitchCheckDefault">
                         <label class="form-check-label" for="flexSwitchCheckDefault">From google calendar</label>
                     </div>
@@ -38,7 +38,7 @@
                         <tr>
                             <td>{{event|slice:"20"}}</td>
                             <td>{{event.show_location|slice:"50"}}</td>
-                            <td>{{event.show_description|slice:"50"}}</td>
+                            <td>{{event.show_description|truncatechars:50}}</td>
                             <td>{{event.show_start}}</td>
                             <td>{{event.show_end}}</td>
                             <td class='d-flex justify-content-evenly'>

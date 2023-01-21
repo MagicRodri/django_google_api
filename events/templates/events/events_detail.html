@@ -1,5 +1,5 @@
 {% extends '_base.html' %}
-
+{% load extras %}
 {% block content %}
 <div class="row m-2 flex-grow-1 d-flex justify-content-center">
     <div class="col-md-6">
@@ -23,9 +23,12 @@
                 {% endif %}    
             </div>
             <div class="mb-2 mt-2">
-                <p class="card-text mb-auto">{{event.show_description}}</p>
+                <p class="card-text mb-auto">{{event.show_description|replace_url_with_link|safe}}</p>
             </div>
-            <a href={% url 'events:delete' event.pk %} class="btn btn-outline-danger">Delete</a>
+            <div class="w-100">
+              <a href={% url 'events:update' event.pk %} class="btn btn-outline-success">Edit</a>
+              <a href={% url 'events:delete' event.pk %} class="btn btn-outline-danger">Delete</a>
+            </div>
           </div>
           {% comment %} <div class="col-auto d-none d-lg-block">
             <svg class="bd-placeholder-img" width="200" height="250" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>

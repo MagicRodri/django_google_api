@@ -1,7 +1,13 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, ListView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 from google.oauth2.credentials import Credentials
 
 from accounts.utils import GoogleCalendarAuthorizationRequiredMixin
@@ -101,6 +107,48 @@ class EventCreateView(LoginRequiredMixin,
         credentials = Credentials(**self.request.session['credentials'])
         calendar = get_calendar_service(credentials)
         event = calendar.events().insert(calendarId=calendar_id,
+                                         body=event_body).execute()
+        return super().form_valid(form)
+
+
+class EventUpdateView(LoginRequiredMixin,
+                      GoogleCalendarAuthorizationRequiredMixin, UpdateView):
+    """
+    Update an event in the DB and in the Google Calendar.
+    """
+    model = Event
+    template_name = 'events/events_update.html'
+    form_class = EventForm
+
+    def get_success_url(self) -> str:
+        return reverse_lazy('events:detail', kwargs={'pk': self.object.id})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        event = form.save(commit=False)
+        event.user = self.request.user
+        event_body = {
+            'summary': event.summary,
+            'location': event.location,
+            'description': event.description,
+            'start': {
+                'dateTime': event.start.isoformat(),
+            },
+            'end': {
+                'dateTime': event.end.isoformat(),
+            }
+        }
+        calendar_id = 'primary'
+        if event.calendar:
+            calendar_id = event.calendar.calendar_id
+        credentials = Credentials(**self.request.session['credentials'])
+        calendar = get_calendar_service(credentials)
+        event = calendar.events().update(calendarId=calendar_id,
+                                         eventId=event.event_id,
                                          body=event_body).execute()
         return super().form_valid(form)
 

@@ -2,6 +2,7 @@ amqp==5.1.1
 asgiref==3.6.0
 async-timeout==4.0.2
 billiard==3.6.4.0
+bleach==5.0.1
 cachetools==5.2.1
 celery==5.2.7
 certifi==2022.12.7
@@ -51,3 +52,4 @@ uritemplate==4.1.1
 urllib3==1.26.14
 vine==5.0.0
 wcwidth==0.2.6
+webencodings==0.5.1
