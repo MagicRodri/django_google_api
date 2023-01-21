@@ -46,6 +46,14 @@ class LogoutView(LoginRequiredMixin, TemplateView):
 
 @csrf_exempt
 def google_login(request):
+    csrf_token_cookie = request.COOKIES.get('g_csrf_token')
+    if not csrf_token_cookie:
+        return HttpResponse('Missing CSRF token cookie', status=403)
+    csrf_token_body = request.POST.get('g_csrf_token')
+    if not csrf_token_body:
+        return HttpResponse('Missing CSRF token', status=403)
+    if csrf_token_cookie != csrf_token_body:
+        return HttpResponse('CSRF token mismatch', status=403)
 
     if request.method == 'POST':
         token = request.POST.get('credential')
