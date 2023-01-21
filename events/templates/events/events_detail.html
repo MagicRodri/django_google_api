@@ -1,0 +1,36 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="row m-2 flex-grow-1 d-flex justify-content-center">
+    <div class="col-md-6">
+        <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+          <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-primary">{{event.calendar}}</strong>
+            <h3 class="mb-0">{{event}}</h3>
+            <div class="mb-1 text-muted">
+                {% if event.start %}
+                From {{event.start|date:"D, d M Y H:i"}}
+                {% endif %}
+                {% if event.end %}
+                to {{event.end|date:"D, d M Y H:i"}}
+                {% endif %}
+            </div>
+            <div>
+                {% if event.location %}
+                <a href={{event.location_link}} target="_blank">
+                    <span class="badge bg-primary">{{event.location}}</span>
+                </a>
+                {% endif %}    
+            </div>
+            <div class="mb-2 mt-2">
+                <p class="card-text mb-auto">{{event.show_description}}</p>
+            </div>
+            <a href={% url 'events:delete' event.pk %} class="btn btn-outline-danger">Delete</a>
+          </div>
+          {% comment %} <div class="col-auto d-none d-lg-block">
+            <svg class="bd-placeholder-img" width="200" height="250" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
+          </div> {% endcomment %}
+        </div>
+      </div>
+</div>
+{% endblock content %}

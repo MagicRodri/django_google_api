@@ -10,33 +10,36 @@
     <title> {% block title %}{% endblock title %} </title>
 </head>
 <body>
-        
-    <header class="p-2 bg-dark text-white">
-
-        <div class="container">
-            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href={% url 'home' %} class="nav-link px-2 text-white">Home</a></li>
-                <li><a href={% url 'events:list' %} class="nav-link px-2 text-white">Events</a></li>
-            </ul>
-            {% if request.user.is_authenticated %}
-            <div class="dropdown text-end">
-                <a href="#" class="btn btn-outline-light me-2 dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ request.user.username }}
-                </a>
-                <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
-                      <li><a class="dropdown-item" href={% url 'accounts:logout' %} >Logout</a></li>
+    
+    <div class="max-vw-100 min-vh-100 overflow-hidden d-flex flex-column justify-content-start">
+        <header class=" container-fluid p-2 bg-dark text-white">
+            <div class="container">
+                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href={% url 'home' %} class="nav-link px-2 text-white">Home</a></li>
+                    <li><a href={% url 'events:list' %} class="nav-link px-2 text-white">Events</a></li>
                 </ul>
-            {% else %}
-            <div class="text-end">
-                <a href={% url 'accounts:login' %} class="btn btn-outline-light me-2">Login</a>
-            {% endif %}
-              </div>
+                {% if request.user.is_authenticated %}
+                <div class="dropdown text-end">
+                    <a href="#" class="btn btn-outline-light me-2 dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+                          <li><a class="dropdown-item" href={% url 'accounts:logout' %} >Logout</a></li>
+                    </ul>
+                {% else %}
+                <div class="text-end">
+                    <a href={% url 'accounts:login' %} class="btn btn-outline-light me-2">Login</a>
+                {% endif %}
+                  </div>
+                </div>
             </div>
-        </div>
-        
-    </header>
-    {% block content %}{% endblock content %}
+            
+        </header>
+        <main class="h-100 container-fluid flex-grow-1 d-flex justify-content-center align-items-center">
+            {% block content %}{% endblock content %}
+        </main>
+    </div>
 
     {% block script %}{% endblock script %}
      <!-- Bootstrap js -->

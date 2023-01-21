@@ -1,0 +1,15 @@
+{% extends '_base.html' %}
+
+{% block content %}
+
+      <div class='h-100 d-flex align-items-center justify-content-center m-2'>
+         <form action='' method='post'>
+            {% csrf_token %}
+            <p>Are you sure you wanna delete: <span class="fw-bold">{{event}}</span> ?</p>
+            <p>This will delete it from your google calendar as well.</p>
+            <p class="text-danger">This action cannot be undone!</p>
+            <button class="btn btn-danger" type='submit'>Yes, delete</button>
+         </form>
+      </div>
+  
+{% endblock content %}

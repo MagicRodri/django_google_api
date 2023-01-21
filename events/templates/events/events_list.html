@@ -15,13 +15,13 @@
                     <div class="form-check form-switch">
                         <input class="form-check-input" name="from_api" type="checkbox" role="switch" id="flexSwitchCheckDefault">
                         <label class="form-check-label" for="flexSwitchCheckDefault">From google calendar</label>
-                      </div>
+                    </div>
                     <button type="submit" class="btn btn-dark">Filter</button>
                 </form>
             </div>
         </div>
         
-        <div class="row">
+        <div class="row table-responsive">
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                     <tr>
@@ -36,14 +36,14 @@
                 <tbody>
                     {% for event in filter.qs %}
                         <tr>
-                            <td>{{event.summary}}</td>
-                            <td>{{event.show_location}}</td>
-                            <td>{{event.show_description}}</td>
+                            <td>{{event|slice:"20"}}</td>
+                            <td>{{event.show_location|slice:"50"}}</td>
+                            <td>{{event.show_description|slice:"50"}}</td>
                             <td>{{event.show_start}}</td>
                             <td>{{event.show_end}}</td>
                             <td class='d-flex justify-content-evenly'>
-                                <a class="btn btn-dark m-1" href="#">Detail</a>
-                                <a class="btn btn-danger m-1" href="#">Delete</a>
+                                <a class="btn btn-dark m-1" href={{event.get_absolute_url}}>Detail</a>
+                                <a class="btn btn-danger m-1" href={% url 'events:delete' event.pk %}>Delete</a>
                             </td>
                         </tr>
                     {% endfor %}

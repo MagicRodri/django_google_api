@@ -3,6 +3,7 @@ import datetime
 from dateutil import parser
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 
 User = get_user_model()
 
@@ -48,7 +49,16 @@ class Event(models.Model):
     attendees = models.ManyToManyField(User, related_name='attendees')
 
     def __str__(self):
-        return self.summary
+        return self.show_summary
+
+    def get_absolute_url(self):
+        return reverse('events:detail', kwargs={'pk': self.pk})
+
+    @property
+    def show_summary(self):
+        if self.summary:
+            return self.summary
+        return "No summary"
 
     @property
     def show_start(self):
@@ -61,15 +71,23 @@ class Event(models.Model):
     @property
     def show_location(self):
         if self.location:
-            if len(self.location) > 20:
-                return self.location[:20] + '...'
+            return self.location
         return 'No location'
+
+    @property
+    def location_is_link(self):
+        return self.location.startswith('http')
+
+    @property
+    def location_link(self):
+        if self.location_is_link:
+            return self.location
+        else:
+            return f"https://www.google.com/maps/place/{self.location}"
 
     @property
     def show_description(self):
         if self.description:
-            if len(self.description) > 100:
-                return self.description[:100] + '...'
             return self.description
         return 'No description'
 

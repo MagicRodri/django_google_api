@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView
 from google.oauth2.credentials import Credentials
 
 from accounts.utils import GoogleCalendarAuthorizationRequiredMixin
@@ -56,8 +56,21 @@ class EventListView(LoginRequiredMixin,
         return context
 
 
+class EventDetailView(LoginRequiredMixin,
+                      GoogleCalendarAuthorizationRequiredMixin, DetailView):
+    """
+    Display the details of an event.
+    """
+    model = Event
+    template_name = 'events/events_detail.html'
+    context_object_name = 'event'
+
+
 class EventCreateView(LoginRequiredMixin,
                       GoogleCalendarAuthorizationRequiredMixin, CreateView):
+    """
+    Create a new event in the DB and in the Google Calendar.
+    """
     model = Event
     template_name = 'events/events_create.html'
     form_class = EventForm
@@ -90,3 +103,22 @@ class EventCreateView(LoginRequiredMixin,
         event = calendar.events().insert(calendarId=calendar_id,
                                          body=event_body).execute()
         return super().form_valid(form)
+
+
+class EventDeleteView(LoginRequiredMixin,
+                      GoogleCalendarAuthorizationRequiredMixin, DeleteView):
+    """
+    Delete an event from the DB and from the Google Calendar.
+    """
+    model = Event
+    template_name = 'events/events_delete.html'
+    success_url = reverse_lazy('events:list')
+    context_object_name = 'event'
+
+    def form_valid(self, request, *args, **kwargs):
+        event = self.get_object()
+        credentials = Credentials(**self.request.session['credentials'])
+        calendar_service = get_calendar_service(credentials)
+        calendar_service.events().delete(calendarId=event.calendar.calendar_id,
+                                         eventId=event.event_id).execute()
+        return super().form_valid(request, *args, **kwargs)
