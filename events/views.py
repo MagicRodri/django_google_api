@@ -21,9 +21,6 @@ class EventListView(LoginRequiredMixin,
     template_name = 'events/events_list.html'
     context_object_name = 'events'
 
-    def get_queryset(self):
-        return Event.objects.filter(user=self.request.user)
-
     def get_context_data(self, **kwargs):
         """Add the filter to the context.
            Refresh the events from the API if the user requested it and save to the DB.
@@ -57,9 +54,6 @@ class EventListView(LoginRequiredMixin,
                         Event.from_events_list(self.request.user, calendar,
                                                events)
         return context
-
-    def get(self, *args, **kwargs):
-        return super().get(self, *args, **kwargs)
 
 
 class EventCreateView(LoginRequiredMixin,
@@ -96,17 +90,3 @@ class EventCreateView(LoginRequiredMixin,
         event = calendar.events().insert(calendarId=calendar_id,
                                          body=event_body).execute()
         return super().form_valid(form)
-
-
-class CalendarListView(LoginRequiredMixin,
-                       GoogleCalendarAuthorizationRequiredMixin, ListView):
-    model = Calendar
-    template_name = 'events/calendar_list.html'
-    context_object_name = 'calendars'
-
-    def get_queryset(self):
-        return Calendar.objects.filter(user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
