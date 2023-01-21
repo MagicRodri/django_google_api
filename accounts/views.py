@@ -119,13 +119,11 @@ def google_auth_callback(request):
         GoogleCredential.objects.create(user=request.user, **defaults)
 
     calendars = get_calendar_list(credentials)
+    Calendar.from_calendar_list(request.user, calendars)
     for calendar in calendars:
-        calendar, _ = Calendar.objects.get_or_create(
-            user=request.user,
-            calendar_id=calendar['id'],
-            summary=calendar.get('summary', ''),
-        )
         if calendar:
-            events = get_events(credentials, calendar.calendar_id)
+            events = get_events(credentials, calendar['id'])
+            calendar = Calendar.objects.get(user=request.user,
+                                            calendar_id=calendar['id'])
             Event.from_events_list(request.user, calendar, events)
     return redirect('events:list')

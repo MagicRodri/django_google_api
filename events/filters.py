@@ -4,6 +4,10 @@ from django import forms
 from .models import Calendar, Event
 
 
+def user_calendars(request):
+    return Calendar.objects.filter(user=request.user)
+
+
 class EventFilter(django_filters.FilterSet):
     start = django_filters.DateTimeFilter(
         field_name='start',
@@ -28,10 +32,15 @@ class EventFilter(django_filters.FilterSet):
     calendar = django_filters.ModelChoiceFilter(
         field_name='calendar',
         label='Calendar',
-        queryset=Calendar.objects.all(),
+        queryset=user_calendars,
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
     class Meta:
         model = Event
         fields = ['start', 'end', 'calendar']
+
+    @property
+    def qs(self):
+        parent = super().qs
+        return parent.filter(user=self.request.user)

@@ -17,6 +17,16 @@ class Calendar(models.Model):
             return self.summary
         return self.user
 
+    @classmethod
+    def from_calendar_list(cls, user, calendars):
+        for calendar in calendars:
+            defaults = {
+                'summary': calendar.get('summary', ''),
+            }
+            cls.objects.update_or_create(user=user,
+                                         calendar_id=calendar['id'],
+                                         defaults=defaults)
+
 
 class Event(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
