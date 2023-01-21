@@ -9,6 +9,7 @@ from django.views.generic import (
     UpdateView,
 )
 from google.oauth2.credentials import Credentials
+from googleapiclient.errors import HttpError as GoogleHttpError
 
 from accounts.utils import GoogleCalendarAuthorizationRequiredMixin
 
@@ -105,9 +106,14 @@ class EventCreateView(LoginRequiredMixin,
         if event.calendar:
             calendar_id = event.calendar.calendar_id
         credentials = Credentials(**self.request.session['credentials'])
-        calendar = get_calendar_service(credentials)
-        event = calendar.events().insert(calendarId=calendar_id,
-                                         body=event_body).execute()
+        try:
+            calendar = get_calendar_service(credentials)
+            event = calendar.events().insert(calendarId=calendar_id,
+                                             body=event_body).execute()
+        except GoogleHttpError as e:
+            message = f"Error creating the event in the Google Calendar! Reason: {e._get_reason()}"
+            form.add_error(None, message)
+            return super().form_invalid(form)
         return super().form_valid(form)
 
 
@@ -146,10 +152,16 @@ class EventUpdateView(LoginRequiredMixin,
         if event.calendar:
             calendar_id = event.calendar.calendar_id
         credentials = Credentials(**self.request.session['credentials'])
-        calendar = get_calendar_service(credentials)
-        event = calendar.events().update(calendarId=calendar_id,
-                                         eventId=event.event_id,
-                                         body=event_body).execute()
+        try:
+            calendar = get_calendar_service(credentials)
+            event = calendar.events().update(calendarId=calendar_id,
+                                             eventId=event.event_id,
+                                             body=event_body).execute()
+        except GoogleHttpError as e:
+            if e.resp.status in [404, 410, 403]:
+                message = 'The event does not exist in the Google Calendar.'
+            form.add_error(None, message)
+            return super().form_invalid(form)
         return super().form_valid(form)
 
 
@@ -166,7 +178,12 @@ class EventDeleteView(LoginRequiredMixin,
     def form_valid(self, request, *args, **kwargs):
         event = self.get_object()
         credentials = Credentials(**self.request.session['credentials'])
-        calendar_service = get_calendar_service(credentials)
-        calendar_service.events().delete(calendarId=event.calendar.calendar_id,
-                                         eventId=event.event_id).execute()
+        try:
+            calendar_service = get_calendar_service(credentials)
+            calendar_service.events().delete(
+                calendarId=event.calendar.calendar_id,
+                eventId=event.event_id).execute()
+        except GoogleHttpError as e:
+            if e.resp.status in [410, 404]:
+                pass
         return super().form_valid(request, *args, **kwargs)

@@ -1,7 +1,9 @@
 import datetime
+from urllib.parse import quote_plus
 
 from dateutil import parser
 from django.contrib.auth import get_user_model
+from django.core.validators import URLValidator
 from django.db import models
 from django.urls import reverse
 
@@ -76,14 +78,21 @@ class Event(models.Model):
 
     @property
     def location_is_link(self):
-        return self.location.startswith('http')
+        validate = URLValidator()
+        try:
+            validate(self.location)
+        except:
+            return False
+        return True
 
     @property
     def location_link(self):
         if self.location_is_link:
             return self.location
         else:
-            return f"https://www.google.com/maps/place/{self.location}"
+            return quote_plus(
+                f"https://www.google.com/maps/place/{self.location}",
+                safe=':/?=')
 
     @property
     def show_description(self):
