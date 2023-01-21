@@ -9,7 +9,7 @@
             <div class="mb-2">
                 <a class="btn btn-dark" href={% url 'events:create' %}>Create event</a>
             </div>
-            <div>
+            <div class="col-lg-3">
                 <form action="" method="get" class="d-flex flex-row flex-wrap  col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                     {{ filter.form}}
                     <div class="form-check form-switch">
@@ -30,16 +30,21 @@
                         <th scope="col">Description</th>
                         <th scope="col">Start at</th>
                         <th scope="col">End at</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for event in filter.qs %}
                         <tr>
                             <td>{{event.summary}}</td>
-                            <td>{{event.location}}</td>
-                            <td>{{event.description}}</td>
-                            <td>{{event.start}}</td>
-                            <td>{{event.end}}</td>
+                            <td>{{event.show_location}}</td>
+                            <td>{{event.show_description}}</td>
+                            <td>{{event.show_start}}</td>
+                            <td>{{event.show_end}}</td>
+                            <td class='d-flex justify-content-evenly'>
+                                <a class="btn btn-dark m-1" href="#">Detail</a>
+                                <a class="btn btn-danger m-1" href="#">Delete</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
