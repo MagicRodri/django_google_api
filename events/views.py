@@ -28,7 +28,7 @@ class EventListView(LoginRequiredMixin,
     model = Event
     template_name = 'events/events_list.html'
     context_object_name = 'events'
-    paginate_by = 3
+    paginate_by = 15
 
     def get_queryset(self):
         return EventFilter(data=self.request.GET, request=self.request).qs

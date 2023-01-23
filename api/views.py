@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from google.oauth2.credentials import Credentials
 from googleapiclient.errors import HttpError as GoogleHttpError
-from rest_framework.generics import ListAPIView, ListCreateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveAPIView
 from rest_framework.serializers import ValidationError
 
 from accounts.models import User
@@ -56,6 +56,12 @@ class EventListAPIView(ListCreateAPIView):
             raise ValidationError(
                 "Credentials not found in session. Login again!")
         serializer.save(user=self.request.user)
+
+
+class EventDetailAPIView(RetrieveAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    lookup_field = 'id'
 
 
 class CalendarListAPIView(ListAPIView):

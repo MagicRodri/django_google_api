@@ -30,6 +30,7 @@ class LoginView(TemplateView):
         context = super().get_context_data(*args, **kwargs)
         context['google_oauth_client_id'] = settings.GOOGLE_OAUTH_CLIENT_ID
         context['google_oauth_redirect_uri'] = reverse('accounts:google_login')
+        context['HOST'] = settings.HOST
         return context
 
 
