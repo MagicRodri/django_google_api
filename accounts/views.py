@@ -29,8 +29,11 @@ class LoginView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['google_oauth_client_id'] = settings.GOOGLE_OAUTH_CLIENT_ID
-        context['google_oauth_redirect_uri'] = reverse('accounts:google_login')
-        context['HOST'] = settings.HOST
+        redirect_uri = self.request.build_absolute_uri(
+            reverse('accounts:google_login'))
+        if settings.NGROK:
+            redirect_uri = redirect_uri.replace('http', 'https')
+        context['google_oauth_redirect_uri'] = redirect_uri
         return context
 
 
@@ -91,6 +94,8 @@ def google_auth(request):
     )
     redirect_uri = request.build_absolute_uri(
         reverse('accounts:google_auth_callback'))
+    if settings.NGROK:
+        redirect_uri = redirect_uri.replace('http', 'https')
     flow.redirect_uri = redirect_uri
     authorization_url, state = flow.authorization_url(
         access_type='offline', include_granted_scopes='true')
@@ -105,11 +110,14 @@ def google_auth_callback(request):
         settings.GOOGLE_CREDENTIALS_FILE,
         scopes=CALENDAR_API_SCOPES,
         state=state)
-
-    flow.redirect_uri = request.build_absolute_uri(
+    redirect_uri = request.build_absolute_uri(
         reverse('accounts:google_auth_callback'))
-
     authorization_response = request.build_absolute_uri()
+    if settings.NGROK:
+        redirect_uri = redirect_uri.replace('http', 'https')
+        authorization_response = authorization_response.replace(
+            'http', 'https')
+    flow.redirect_uri = redirect_uri
     flow.fetch_token(authorization_response=authorization_response)
 
     credentials = flow.credentials
