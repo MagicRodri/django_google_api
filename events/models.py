@@ -64,11 +64,13 @@ class Event(models.Model):
 
     @property
     def show_start(self):
-        return self.start.strftime('%Y-%m-%d %H:%M')
+        if self.start:
+            return self.start.strftime('%Y-%m-%d %H:%M')
 
     @property
     def show_end(self):
-        return self.end.strftime('%Y-%m-%d %H:%M')
+        if self.end:
+            return self.end.strftime('%Y-%m-%d %H:%M')
 
     @property
     def show_location(self):
