@@ -20,10 +20,10 @@ class User(AbstractUser):
 
 class GoogleCredential(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length=255, blank=True)
-    refresh_token = models.CharField(max_length=255, blank=True)
-    client_id = models.CharField(max_length=255, blank=True)
-    scopes = models.CharField(max_length=255, blank=True)
+    token = models.CharField(max_length=255, blank=True, null=True)
+    refresh_token = models.CharField(max_length=255, blank=True, null=True)
+    client_id = models.CharField(max_length=255, blank=True, null=True)
+    scopes = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return str(self.user)

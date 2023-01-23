@@ -1,3 +1,5 @@
+import datetime
+
 from django import forms
 
 from .models import Calendar, Event
@@ -29,7 +31,21 @@ class EventForm(forms.ModelForm):
                 'rows': 4
             }),
             'start':
-            forms.DateTimeInput(attrs={'class': 'form-control'}),
+            forms.DateTimeInput(
+                attrs={
+                    'class':
+                    'form-control',
+                    'placeholder': (datetime.datetime.utcnow() +
+                                    datetime.timedelta(days=1)
+                                    ).strftime('%Y-%m-%d %H:%M:%S')
+                }),
             'end':
-            forms.DateTimeInput(attrs={'class': 'form-control'}),
+            forms.DateTimeInput(
+                attrs={
+                    'class':
+                    'form-control',
+                    'placeholder': (datetime.datetime.utcnow() +
+                                    datetime.timedelta(days=2)
+                                    ).strftime('%Y-%m-%d %H:%M:%S')
+                }),
         }

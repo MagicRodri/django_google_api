@@ -46,8 +46,8 @@ class Event(models.Model):
     summary = models.CharField(max_length=255)
     location = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
-    start = models.DateTimeField(default=default_start)
-    end = models.DateTimeField(default=default_end)
+    start = models.DateTimeField(blank=True)
+    end = models.DateTimeField(blank=True)
     attendees = models.ManyToManyField(User, related_name='attendees')
 
     def __str__(self):

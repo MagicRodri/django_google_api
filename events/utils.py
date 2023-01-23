@@ -8,7 +8,8 @@ CALENDAR_API_VERSION = settings.CALENDAR_API_VERSION
 def get_calendar_service(credentials):
     return build(CALENDAR_API_NAME,
                  CALENDAR_API_VERSION,
-                 credentials=credentials)
+                 credentials=credentials,
+                 cache_discovery=False)
 
 
 def get_calendar_list(credentials):

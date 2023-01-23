@@ -12,6 +12,7 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
 from events.models import Calendar, Event
+from events.tasks import get_events_from_api
 from events.utils import get_calendar_list, get_events
 
 from .models import GoogleCredential
@@ -86,15 +87,12 @@ def google_auth(request):
         settings.GOOGLE_CREDENTIALS_FILE,
         scopes=CALENDAR_API_SCOPES,
     )
-
     redirect_uri = request.build_absolute_uri(
         reverse('accounts:google_auth_callback'))
     flow.redirect_uri = redirect_uri
     authorization_url, state = flow.authorization_url(
         access_type='offline', include_granted_scopes='true')
-
     request.session['state'] = state
-
     return redirect(authorization_url)
 
 
@@ -120,12 +118,8 @@ def google_auth_callback(request):
         'refresh_token': credentials.refresh_token,
         'client_id': credentials.client_id
     }
-    qs = GoogleCredential.objects.filter(user=request.user)
-    if qs.exists():
-        qs.update(**defaults)
-    else:
-        GoogleCredential.objects.create(user=request.user, **defaults)
-
+    GoogleCredential.objects.update_or_create(user=request.user,
+                                              defaults=defaults)
     calendars = get_calendar_list(credentials)
     Calendar.from_calendar_list(request.user, calendars)
     for calendar in calendars:
@@ -134,4 +128,6 @@ def google_auth_callback(request):
             calendar = Calendar.objects.get(user=request.user,
                                             calendar_id=calendar['id'])
             Event.from_events_list(request.user, calendar, events)
+    # get_events_from_api.apply_async(args=(request.user.id,
+    #                                       request.session['credentials']))
     return redirect('events:list')
