@@ -5,7 +5,7 @@ register = template.Library()
 
 
 @register.filter
-def replace_url_with_link(text):
+def replace_url_with_link(text: str) -> str:
     """
     Replace URLs in text with HTML links
     """

@@ -28,6 +28,10 @@ class EventListView(LoginRequiredMixin,
     model = Event
     template_name = 'events/events_list.html'
     context_object_name = 'events'
+    paginate_by = 3
+
+    def get_queryset(self):
+        return EventFilter(data=self.request.GET, request=self.request).qs
 
     def get_context_data(self, **kwargs):
         """Add the filter to the context.
@@ -35,8 +39,8 @@ class EventListView(LoginRequiredMixin,
         """
         context = super().get_context_data(**kwargs)
         filter = EventFilter(data=self.request.GET, request=self.request)
+        context['filter'] = filter
         if filter.is_valid():
-            context['filter'] = filter
             fetch_from_api = self.request.GET.get("from_api")
             if fetch_from_api:
                 lookup = {
@@ -69,6 +73,15 @@ class EventListView(LoginRequiredMixin,
                     return HttpResponse(e)
                 except KeyError:
                     return HttpResponse("Credentials not found in session")
+        page_obj = context['page_obj']
+        if page_obj.paginator.num_pages > 10:
+            if page_obj.number > 5:
+                context['page_range'] = range(page_obj.number - 5,
+                                              page_obj.number + 5)
+            else:
+                context['page_range'] = range(1, 11)
+        else:
+            context['page_range'] = range(1, page_obj.paginator.num_pages + 1)
         return context
 
 
@@ -106,9 +119,11 @@ class EventCreateView(LoginRequiredMixin,
             'description': event.description,
             'start': {
                 'dateTime': event.start.isoformat(),
+                'timeZone': 'UTC'
             },
             'end': {
                 'dateTime': event.end.isoformat(),
+                'timeZone': 'UTC'
             }
         }
         try:
@@ -156,9 +171,11 @@ class EventUpdateView(LoginRequiredMixin,
             'description': event.description,
             'start': {
                 'dateTime': event.start.isoformat(),
+                'timeZone': 'UTC'
             },
             'end': {
                 'dateTime': event.end.isoformat(),
+                'timeZone': 'UTC'
             }
         }
         calendar_id = 'primary'
