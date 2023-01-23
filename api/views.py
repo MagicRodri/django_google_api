@@ -29,7 +29,6 @@ class EventListAPIView(ListCreateAPIView):
         return qs.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        print("Inspection:", serializer.validated_data)
         event_data = serializer.validated_data
         event_body = {
             'summary': event_data.get('summary'),
@@ -48,15 +47,14 @@ class EventListAPIView(ListCreateAPIView):
                 calendar_id = event_data.get('calendar').calendar_id
             credentials = Credentials(**self.request.session['credentials'])
             calendar = get_calendar_service(credentials)
-            event = calendar.events().insert(calendarId=calendar_id,
-                                             body=event_body).execute()
+            calendar.events().insert(calendarId=calendar_id,
+                                     body=event_body).execute()
         except GoogleHttpError as e:
             message = f"Error creating the event in the Google Calendar! Reason: {e._get_reason()}"
             raise ValidationError(message)
         except KeyError:
             raise ValidationError(
-                "Your session credentials can be found.You need to logout and login again!"
-            )
+                "Credentials not found in session. Login again!")
         serializer.save(user=self.request.user)
 
 

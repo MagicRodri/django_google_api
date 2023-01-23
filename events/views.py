@@ -43,24 +43,32 @@ class EventListView(LoginRequiredMixin,
                     'time_min': filter.data.get('start'),
                     'time_max': filter.data.get('end'),
                 }
-                credentials = Credentials(
-                    **self.request.session['credentials'])
-                calendar = filter.data.get('calendar')
-                if calendar:
-                    calendar = Calendar.objects.get(id=calendar)
-                    lookup['calendar_id'] = calendar.calendar_id
-                    events = get_events(credentials, **lookup)
-                    Event.from_events_list(self.request.user, calendar, events)
-                else:
-                    calendars = get_calendar_list(credentials)
-                    Calendar.from_calendar_list(self.request.user, calendars)
-                    for calendar in calendars:
-                        lookup['calendar_id'] = calendar['id']
+                try:
+                    credentials = Credentials(
+                        **self.request.session['credentials'])
+                    calendar = filter.data.get('calendar')
+                    if calendar:
+                        calendar = Calendar.objects.get(id=calendar)
+                        lookup['calendar_id'] = calendar.calendar_id
                         events = get_events(credentials, **lookup)
-                        calendar = Calendar.objects.get(
-                            user=self.request.user, calendar_id=calendar['id'])
                         Event.from_events_list(self.request.user, calendar,
                                                events)
+                    else:
+                        calendars = get_calendar_list(credentials)
+                        Calendar.from_calendar_list(self.request.user,
+                                                    calendars)
+                        for calendar in calendars:
+                            lookup['calendar_id'] = calendar['id']
+                            events = get_events(credentials, **lookup)
+                            calendar = Calendar.objects.get(
+                                user=self.request.user,
+                                calendar_id=calendar['id'])
+                            Event.from_events_list(self.request.user, calendar,
+                                                   events)
+                except GoogleHttpError as e:
+                    return HttpResponse(e)
+                except KeyError:
+                    return HttpResponse("Credentials not found in session")
         return context
 
 
@@ -116,10 +124,8 @@ class EventCreateView(LoginRequiredMixin,
             form.add_error(None, message)
             return super().form_invalid(form)
         except KeyError:
-            form.add_error(
-                None,
-                "Your session credentials can be found.You need to logout and login again!"
-            )
+            form.add_error(None,
+                           "Credentials not found in session. Login again!")
             return super().form_invalid(form)
         return super().form_valid(form)
 
@@ -170,10 +176,8 @@ class EventUpdateView(LoginRequiredMixin,
             form.add_error(None, message)
             return super().form_invalid(form)
         except KeyError:
-            form.add_error(
-                None,
-                "Your session credentials can be found.You need to logout and login again!"
-            )
+            form.add_error(None,
+                           "Credentials not found in session. Login again!")
             return super().form_invalid(form)
         return super().form_valid(form)
 
@@ -200,6 +204,7 @@ class EventDeleteView(LoginRequiredMixin,
             if e.resp.status in [410, 404]:
                 pass
         except KeyError:
-            return HttpResponse('You can not delete with being logged in!',
-                                status_code=403)
+            return HttpResponse(
+                'You can not delete event without being logged in!',
+                status_code=403)
         return super().form_valid(request, *args, **kwargs)
