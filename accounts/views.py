@@ -12,7 +12,8 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
 from events.models import Calendar, Event
-from events.tasks import get_events_from_api
+
+# from events.tasks import get_events_from_api
 from events.utils import get_calendar_list, get_events
 
 from .models import GoogleCredential
