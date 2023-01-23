@@ -43,11 +43,11 @@ class Event(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE)
     event_id = models.CharField(max_length=255, blank=True)
-    summary = models.CharField(max_length=255)
-    location = models.CharField(max_length=255, blank=True)
-    description = models.TextField(blank=True)
-    start = models.DateTimeField(blank=True)
-    end = models.DateTimeField(blank=True)
+    summary = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    start = models.DateTimeField(blank=True, null=True)
+    end = models.DateTimeField(blank=True, null=True)
     attendees = models.ManyToManyField(User, related_name='attendees')
 
     def __str__(self):
