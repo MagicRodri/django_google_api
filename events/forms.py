@@ -1,8 +1,7 @@
-import datetime
-
 from django import forms
 
-from .models import Calendar, Event
+from .models import Calendar, Event, default_end, default_start
+from .validators import clean_event_data
 
 
 class EventForm(forms.ModelForm):
@@ -33,19 +32,18 @@ class EventForm(forms.ModelForm):
             'start':
             forms.DateTimeInput(
                 attrs={
-                    'class':
-                    'form-control',
-                    'placeholder': (datetime.datetime.utcnow() +
-                                    datetime.timedelta(days=1)
-                                    ).strftime('%Y-%m-%d %H:%M:%S')
+                    'class': 'form-control',
+                    'placeholder': default_start().strftime(
+                        '%Y-%m-%d %H:%M:%S')
                 }),
             'end':
             forms.DateTimeInput(
                 attrs={
-                    'class':
-                    'form-control',
-                    'placeholder': (datetime.datetime.utcnow() +
-                                    datetime.timedelta(days=2)
-                                    ).strftime('%Y-%m-%d %H:%M:%S')
+                    'class': 'form-control',
+                    'placeholder': default_end().strftime('%Y-%m-%d %H:%M:%S')
                 }),
         }
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        return clean_event_data(cleaned_data)

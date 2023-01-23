@@ -102,17 +102,23 @@ class EventCreateView(LoginRequiredMixin,
                 'dateTime': event.end.isoformat(),
             }
         }
-        calendar_id = 'primary'
-        if event.calendar:
-            calendar_id = event.calendar.calendar_id
-        credentials = Credentials(**self.request.session['credentials'])
         try:
+            calendar_id = 'primary'
+            if event.calendar:
+                calendar_id = event.calendar.calendar_id
+            credentials = Credentials(**self.request.session['credentials'])
             calendar = get_calendar_service(credentials)
             event = calendar.events().insert(calendarId=calendar_id,
                                              body=event_body).execute()
         except GoogleHttpError as e:
             message = f"Error creating the event in the Google Calendar! Reason: {e._get_reason()}"
             form.add_error(None, message)
+            return super().form_invalid(form)
+        except KeyError:
+            form.add_error(
+                None,
+                "Your session credentials can be found.You need to logout and login again!"
+            )
             return super().form_invalid(form)
         return super().form_valid(form)
 
