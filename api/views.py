@@ -6,6 +6,7 @@ from rest_framework.serializers import ValidationError
 
 from accounts.models import User
 from accounts.serializers import UserSerializer
+from events.filters import EventFilterBackend
 from events.models import Calendar, Event
 from events.serializers import CalendarSerializer, EventSerializer
 from events.utils import get_calendar_service
@@ -21,12 +22,7 @@ class UserListAPIView(ListAPIView):
 class EventListAPIView(ListCreateAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = {
-        'start': ['gte'],
-        'end': ['lte'],
-        'calendar': ['exact']
-    }
+    filter_backends = [EventFilterBackend]
 
     def get_queryset(self):
         qs = super().get_queryset()

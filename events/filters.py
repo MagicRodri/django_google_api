@@ -1,5 +1,6 @@
 import django_filters
 from django import forms
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Calendar, Event
 
@@ -44,3 +45,15 @@ class EventFilter(django_filters.FilterSet):
     def qs(self):
         parent = super().qs
         return parent.filter(user=self.request.user)
+
+
+class EventFilterBackend(DjangoFilterBackend):
+
+    def get_filterset_class(self, view, queryset=None):
+        return EventFilter
+
+    def get_filterset_kwargs(self, request, queryset, view):
+        return {
+            'data': request.query_params,
+            'request': request,
+        }
