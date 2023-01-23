@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -157,8 +158,8 @@ class EventUpdateView(LoginRequiredMixin,
         calendar_id = 'primary'
         if event.calendar:
             calendar_id = event.calendar.calendar_id
-        credentials = Credentials(**self.request.session['credentials'])
         try:
+            credentials = Credentials(**self.request.session['credentials'])
             calendar = get_calendar_service(credentials)
             event = calendar.events().update(calendarId=calendar_id,
                                              eventId=event.event_id,
@@ -167,6 +168,12 @@ class EventUpdateView(LoginRequiredMixin,
             if e.resp.status in [404, 410, 403]:
                 message = 'The event does not exist in the Google Calendar.'
             form.add_error(None, message)
+            return super().form_invalid(form)
+        except KeyError:
+            form.add_error(
+                None,
+                "Your session credentials can be found.You need to logout and login again!"
+            )
             return super().form_invalid(form)
         return super().form_valid(form)
 
@@ -183,8 +190,8 @@ class EventDeleteView(LoginRequiredMixin,
 
     def form_valid(self, request, *args, **kwargs):
         event = self.get_object()
-        credentials = Credentials(**self.request.session['credentials'])
         try:
+            credentials = Credentials(**self.request.session['credentials'])
             calendar_service = get_calendar_service(credentials)
             calendar_service.events().delete(
                 calendarId=event.calendar.calendar_id,
@@ -192,4 +199,7 @@ class EventDeleteView(LoginRequiredMixin,
         except GoogleHttpError as e:
             if e.resp.status in [410, 404]:
                 pass
+        except KeyError:
+            return HttpResponse('You can not delete with being logged in!',
+                                status_code=403)
         return super().form_valid(request, *args, **kwargs)
